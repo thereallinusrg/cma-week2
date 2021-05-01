@@ -1,5 +1,5 @@
 ---
-title: "ex_2_md"
+title: "CMA Exercise 2"
 author: "Linus Rüegg"
 date: "4/30/2021"
 output: html_document
@@ -22,11 +22,44 @@ wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, rem
 wildschwein_BE
 ```
 
-
-```{r Task 1: Getting an overview}
+# Task 1
+```{r Task 1: Timelag}
 # Creating new column showing the timelag between two entries in int seconds
-wildschwein_BE$timelag  <- as.integer(difftime(lead(wildschwein_BE$DatetimeUTC), wildschwein_BE$DatetimeUTC, units = "secs"))
 
-wildschwein_BE
+wildschwein_BE %>%
+  group_by(TierID) %>%
+  mutate(timelag = as.integer(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+
 ```
 
+### How many individuals were tracked?
+```{r Task 1: Names & occurences of individuals}
+table(wildschwein_BE$TierName)
+```
+Three, all with above 14'000 tracker fixes.
+
+
+### For how long were the individuals tracked? Are there gaps?
+### Were all individuals tracked concurrently or sequentially?
+### What is the temporal sampling interval between the locations?
+
+```{r Task 1: Tracking Behavior}
+wildschwein_BE %>%
+  group_by(TierName) %>%
+  summarise(min_time = min(DatetimeUTC),
+            max_time= max(DatetimeUTC),
+            Tracking_Period = difftime(max_time, min_time),
+            min_lag = min(timelag, na.rm=T),
+            max_lag = max(timelag, na.rm=T),
+            median_lag = median(timelag, na.rm=T)
+            )
+```
+The Tracking_Period for each of our three boars is a bit different.
+Looking at min_time and max_time of the three, they were tracked concurrently.
+And finally looking at the timelag: There is no strict sampling interval, sometimes the next location was sampled just 12s after the previous and the most extreme gap was 60'367s long. The median timelag for all three boars was around 15min (900s).
+
+```{r Task 1: Plot}
+ggplot(wildschwein_BE)+
+  geom_point( aes(x = DatetimeUTC, y = timelag, color = TierName, shape = TierName))
+```
+The plot proves the assumptions done by just looking at the summary statistics.
