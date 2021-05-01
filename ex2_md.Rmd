@@ -7,9 +7,26 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(readr)        # to import tabular data (e.g. csv)
+library(dplyr)        # to manipulate (tabular) data
+library(ggplot2)      # to visualize data
+library(sf)           # to handle spatial vector data
+library(terra)        # To handle raster data
+library(lubridate)    # To handle dates and times
 ```
 
-```{r Task 1}
+```{r Data Import}
+wildschwein_BE <- read_delim("wildschwein_BE_2056.csv",",")
 
+wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
+wildschwein_BE
+```
+
+
+```{r Task 1: Getting an overview}
+# Creating new column showing the timelag between two entries in int seconds
+wildschwein_BE$timelag  <- as.integer(difftime(lead(wildschwein_BE$DatetimeUTC), wildschwein_BE$DatetimeUTC, units = "secs"))
+
+wildschwein_BE
 ```
 
