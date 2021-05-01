@@ -66,7 +66,7 @@ The plot proves the assumptions done by just looking at the summary statistics.
 
 # Task 2
 ```{r Task 2: Steplength}
-wildschwein_BE <- wildschwein_BE <- wildschwein_BE %>%
+wildschwein_BE <-  wildschwein_BE %>%
   group_by(TierName) %>%
   mutate(steplength = sqrt((E- lead(E,1))^2 + (N -lead(N,1))^2))
 ```
@@ -78,3 +78,127 @@ wildschwein_BE <- wildschwein_BE %>%
 ```
 ### What speed unit do you get?
 m/s
+
+#  Task 3
+```{r Data Import}
+caro <- read_delim("caro60.csv",",")
+
+caro <- st_as_sf(caro, coords = c("E", "N"), crs = 2056, remove = FALSE)
+nrow(caro)
+```
+
+```{r Data Sequencing}
+caro_3 <- caro[seq(1,nrow(caro),by=3),]
+caro_6 <- caro[seq(1,nrow(caro),by=6),]
+caro_9 <- caro[seq(1,nrow(caro),by=9),]
+```
+
+```{r}
+nrow(caro_3)
+nrow(caro_6)
+nrow(caro_9)
+```
+```{r Adding timelag, steplength and speed}
+# Caro_3
+caro_3 <- caro_3 %>%
+  mutate(timelag = as.integer(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro_3 <- caro_3 %>%
+  mutate(steplength = sqrt((E- lead(E,1))^2 + (N -lead(N,1))^2))
+caro_3 <- caro_3 %>%
+  mutate(speed = steplength/timelag)
+# Caro_6
+caro_6 <- caro_6 %>%
+  mutate(timelag = as.integer(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro_6 <- caro_6 %>%
+  mutate(steplength = sqrt((E- lead(E,1))^2 + (N -lead(N,1))^2))
+caro_6 <- caro_6 %>%
+  mutate(speed = steplength/timelag)
+# Caro_9
+caro_9 <- caro_9 %>%
+  mutate(timelag = as.integer(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro_9 <- caro_9 %>%
+  mutate(steplength = sqrt((E- lead(E,1))^2 + (N -lead(N,1))^2))
+caro_9 <- caro_9 %>%
+  mutate(speed = steplength/timelag)
+# Caro
+caro <- caro %>%
+  mutate(timelag = as.integer(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro <- caro %>%
+  mutate(steplength = sqrt((E- lead(E,1))^2 + (N -lead(N,1))^2))
+caro <- caro %>%
+  mutate(speed = steplength/timelag)
+```
+### Plotting
+```{r Calculating Line Geometries}
+caro_l <- caro %>%
+  group_by() %>%
+    summarise(do_union = FALSE) %>%
+      st_cast("LINESTRING")
+
+caro_l_3 <- caro_3 %>%
+  group_by() %>%
+    summarise(do_union = FALSE) %>%
+      st_cast("LINESTRING")
+
+caro_l_6 <- caro_6 %>%
+  group_by() %>%
+    summarise(do_union = FALSE) %>%
+      st_cast("LINESTRING")
+
+caro_l_9 <- caro_9 %>%
+  group_by() %>%
+    summarise(do_union = FALSE) %>%
+      st_cast("LINESTRING")
+```
+
+```{r Org/3Min}
+ggplot() +
+  ggtitle("Caro's Route - Original vs 3 Min resampled data")+
+  ylab("East (LV95)")+
+  xlab("North (LV95)")+
+  geom_sf(data = caro, aes(color = "1 Min"), alpha = 0.8) +
+  geom_sf(data = caro_l, aes(color = "1 Min"), alpha = 0.8) +
+  geom_sf(data = caro_3, aes(color = "3 Min"), alpha = 0.8)+
+  geom_sf(data = caro_l_3, aes(color = "3 Min"), alpha = 0.8)+
+  coord_sf(datum = 2056) +
+  scale_color_manual(name = "Sampling Interval", breaks = c("1 Min", "3 Min"), values = c("1 Min" = "cyan", "3 Min" = "darkgreen"))
+```
+
+```{r Org/6Min}
+ggplot() +
+  ggtitle("Caro's Route - Original vs 6 Min resampled data")+
+  ylab("East (LV95)")+
+  xlab("North (LV95)")+
+  geom_sf(data = caro, aes(color = "1 Min"), alpha = 0.8) +
+  geom_sf(data = caro_l, aes(color = "1 Min"), alpha = 0.8) +
+  geom_sf(data = caro_6, aes(color = "6 Min"), alpha = 0.8)+
+  geom_sf(data = caro_l_6, aes(color = "6 Min"), alpha = 0.8)+
+  coord_sf(datum = 2056) +
+  scale_color_manual(name = "Sampling Interval", breaks = c("1 Min", "6 Min"), values = c("1 Min" = "cyan", "6 Min" = "blue"))
+```
+```{r Org/9Min}
+ggplot() +
+  ggtitle("Caro's Route - Original vs 9 Min resampled data")+
+  ylab("East (LV95)")+
+  xlab("North (LV95)")+
+  geom_sf(data = caro, aes(color = "1 Min"), alpha = 0.8) +
+  geom_sf(data = caro_l, aes(color = "1 Min"), alpha = 0.8) +
+  geom_sf(data = caro_9, aes(color = "9 Min"), alpha = 0.8)+
+  geom_sf(data = caro_l_9, aes(color = "9 Min"), alpha = 0.8)+
+  coord_sf(datum = 2056) +
+  scale_color_manual(name = "Sampling Interval", breaks = c("1 Min", "9 Min"), values = c("1 Min" = "cyan", "9 Min" = "darkblue"))
+```
+I do not like the uneven grid spacing. Will maybe fix this when trying to flip the plot again.
+
+```{r Speed with different Sampling Interval}
+ggplot()+
+  ggtitle("Speed with different Sampling Interval")+
+  ylab("Speed [m/s]")+
+  xlab("Time [s]")+
+  geom_line(data = caro, aes(x = DatetimeUTC, y = speed, color ="1 Min"))+
+  geom_line(data = caro_3, aes(x = DatetimeUTC, y = speed, color ="3 Min"))+
+  geom_line(data = caro_6, aes(x = DatetimeUTC, y = speed, color ="6 Min"))+
+  geom_line(data = caro_9, aes(x = DatetimeUTC, y = speed, color ="9 Min"))+
+  scale_color_manual(name = "Sampling Interval", breaks = c("1 Min","3 Min", "6 Min","9 Min"), values = c("1 Min" = "cyan", "9 Min" = "darkblue", "6 Min" = "blue", "3 Min" = "darkgreen"))
+```
+
