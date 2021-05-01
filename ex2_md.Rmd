@@ -80,7 +80,7 @@ wildschwein_BE <- wildschwein_BE %>%
 m/s
 
 #  Task 3
-```{r Data Import}
+```{r Data Import 2}
 caro <- read_delim("caro60.csv",",")
 
 caro <- st_as_sf(caro, coords = c("E", "N"), crs = 2056, remove = FALSE)
@@ -200,5 +200,38 @@ ggplot()+
   geom_line(data = caro_6, aes(x = DatetimeUTC, y = speed, color ="6 Min"))+
   geom_line(data = caro_9, aes(x = DatetimeUTC, y = speed, color ="9 Min"))+
   scale_color_manual(name = "Sampling Interval", breaks = c("1 Min","3 Min", "6 Min","9 Min"), values = c("1 Min" = "cyan", "9 Min" = "darkblue", "6 Min" = "blue", "3 Min" = "darkgreen"))
+```
+# Task 4
+
+```{r Zoo familiarisation}
+library(zoo)
+
+example <- rnorm(10)
+rollmean(example,k = 3,fill = NA,align = "left")
+##  [1]  0.93634335  0.31709038  0.02370048  0.67869801  0.73369105  0.50401344
+##  [7] -0.56144365 -0.56902598          NA          NA
+rollmean(example,k = 4,fill = NA,align = "left")
+##  [1]  0.6775521  0.2045005  0.5848215  0.5255629  0.3446928  0.1459635
+##  [7] -0.4102301         NA         NA         NA
+```
+```{r Rolling Window on Caro data}
+carorw <- caro %>%
+  mutate(k3 = rollmean(speed, k= 3, fill = NA, align = "left"),
+          k6 = rollmean(speed, k= 6, fill = NA, align = "left"),
+          k15 = rollmean(speed, k= 15, fill = NA, align = "left"),
+          k30 = rollmean(speed, k= 30, fill = NA, align = "left"))
+```
+
+```{r PLotting the Rolling Window data}
+ggplot(data = carorw)+
+  ggtitle("Rolling Window Caro Data")+
+  ylab("Speed [m/s]")+
+  xlab("Time [t]")+
+  geom_line(aes(x = DatetimeUTC, y = speed, color ="Original"))+
+  geom_line(aes(x = DatetimeUTC, y = k3, color ="k 3"))+
+  geom_line(aes(x = DatetimeUTC, y = k6, color ="k 6"))+
+  geom_line(aes(x = DatetimeUTC, y = k15, color ="k 15"))+
+  geom_line(aes(x = DatetimeUTC, y = k30, color ="k 30"))+
+  scale_color_manual(name = "Window Size", breaks = c("Original","k 3", "k 6","k 15", "k 30"), values = c("Original" = "cyan", "k 15" = "purple", "k 6" = "darkgreen", "k 3" = "blue", "k 30" = "darkred"))
 ```
 
