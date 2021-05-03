@@ -151,11 +151,14 @@ caro_l_9 <- caro_9 %>%
       st_cast("LINESTRING")
 ```
 
+
 ```{r Org/3Min}
 ggplot() +
   ggtitle("Caro's Route - Original vs 3 Min resampled data")+
-  ylab("East (LV95)")+
-  xlab("North (LV95)")+
+  xlab("E")+
+  ylab("N")+
+  theme_set(theme_minimal()) +
+  theme(aspect.ratio=1) +
   geom_sf(data = caro, aes(color = "1 Min"), alpha = 0.8) +
   geom_sf(data = caro_l, aes(color = "1 Min"), alpha = 0.8) +
   geom_sf(data = caro_3, aes(color = "3 Min"), alpha = 0.8)+
@@ -167,8 +170,10 @@ ggplot() +
 ```{r Org/6Min}
 ggplot() +
   ggtitle("Caro's Route - Original vs 6 Min resampled data")+
-  ylab("East (LV95)")+
-  xlab("North (LV95)")+
+  ylab("N")+
+  xlab("E")+
+  theme_set(theme_minimal()) +
+  theme(aspect.ratio=1) +
   geom_sf(data = caro, aes(color = "1 Min"), alpha = 0.8) +
   geom_sf(data = caro_l, aes(color = "1 Min"), alpha = 0.8) +
   geom_sf(data = caro_6, aes(color = "6 Min"), alpha = 0.8)+
@@ -179,8 +184,10 @@ ggplot() +
 ```{r Org/9Min}
 ggplot() +
   ggtitle("Caro's Route - Original vs 9 Min resampled data")+
-  ylab("East (LV95)")+
-  xlab("North (LV95)")+
+  ylab("N")+
+  xlab("E")+
+  theme_set(theme_minimal()) +
+  theme(aspect.ratio=1) +
   geom_sf(data = caro, aes(color = "1 Min"), alpha = 0.8) +
   geom_sf(data = caro_l, aes(color = "1 Min"), alpha = 0.8) +
   geom_sf(data = caro_9, aes(color = "9 Min"), alpha = 0.8)+
@@ -195,6 +202,7 @@ ggplot()+
   ggtitle("Speed with different Sampling Interval")+
   ylab("Speed [m/s]")+
   xlab("Time [s]")+
+  theme_set(theme_minimal()) +
   geom_line(data = caro, aes(x = DatetimeUTC, y = speed, color ="1 Min"))+
   geom_line(data = caro_3, aes(x = DatetimeUTC, y = speed, color ="3 Min"))+
   geom_line(data = caro_6, aes(x = DatetimeUTC, y = speed, color ="6 Min"))+
@@ -227,6 +235,7 @@ ggplot(data = carorw)+
   ggtitle("Rolling Window Caro Data")+
   ylab("Speed [m/s]")+
   xlab("Time [t]")+
+  theme_set(theme_minimal()) +
   geom_line(aes(x = DatetimeUTC, y = speed, color ="Original"))+
   geom_line(aes(x = DatetimeUTC, y = k3, color ="k 3"))+
   geom_line(aes(x = DatetimeUTC, y = k6, color ="k 6"))+
