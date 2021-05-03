@@ -2,7 +2,9 @@
 title: "CMA Exercise 2"
 author: "Linus Rüegg"
 date: "4/30/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -195,7 +197,7 @@ ggplot() +
   coord_sf(datum = 2056) +
   scale_color_manual(name = "Sampling Interval", breaks = c("1 Min", "9 Min"), values = c("1 Min" = "cyan", "9 Min" = "darkblue"))
 ```
-I do not like the uneven grid spacing. Will maybe fix this when trying to flip the plot again.
+One can see less and less movement by increasing the sampling interval steps. This makes sense, as we loos points, which could be plotted in the end. 
 
 ```{r Speed with different Sampling Interval}
 ggplot()+
@@ -209,6 +211,9 @@ ggplot()+
   geom_line(data = caro_9, aes(x = DatetimeUTC, y = speed, color ="9 Min"))+
   scale_color_manual(name = "Sampling Interval", breaks = c("1 Min","3 Min", "6 Min","9 Min"), values = c("1 Min" = "cyan", "9 Min" = "darkblue", "6 Min" = "blue", "3 Min" = "darkgreen"))
 ```
+
+Like with the trajectory line plots, we see a smoother picture here too, when increasing the sampling interval. Also, we seem to always hit the lower speeds while sampling with bigger step sizes. Even though the original sample step size of one minute shows some far faster speeds. This might lead to misinterpretations and should be avoided by always looking at (at least a subset) of the original data.
+
 # Task 4
 
 ```{r Zoo familiarisation}
@@ -244,3 +249,5 @@ ggplot(data = carorw)+
   scale_color_manual(name = "Window Size", breaks = c("Original","k 3", "k 6","k 15", "k 30"), values = c("Original" = "cyan", "k 15" = "purple", "k 6" = "darkgreen", "k 3" = "blue", "k 30" = "darkred"))
 ```
 
+The moving window is a good example, on how data can be simplified without eventually loosing the gist. Here, the bigger window sized graphs do not indicate a much lower speed as the higher sampling step sizes did in Task 3. 
+k3 trough k30 much better represent the original graph than the increased sampling step sized graphs.
