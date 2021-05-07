@@ -3,5 +3,8 @@
 .RData
 .Ruserdata
 .csv
+<<<<<<< ours
 
 *.csv
+=======
+>>>>>>> theirs
